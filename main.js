@@ -1,14 +1,9 @@
 import "./style.css";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import * as dat from "lil-gui";
 import Snake from "./src/snake.js";
 import Candy from "./src/candy.js";
 
-/**
- * Debug
- */
-// const gui = new dat.GUI()
 
 const resolution = new THREE.Vector2(10, 10);
 
@@ -16,15 +11,6 @@ const resolution = new THREE.Vector2(10, 10);
  * Scene
  */
 const scene = new THREE.Scene();
-
-/**
- * Manhattan
- */
-// const material = new THREE.MeshNormalMaterial();
-// const geometry = new THREE.BoxGeometry(1, 1, 1);
-
-// const mesh = new THREE.Mesh(geometry, material);
-// scene.add(mesh);
 
 /**
  * render sizes
@@ -64,10 +50,6 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.target.set(resolution.x / 2, 2, resolution.y / 2);
 
-/**
- * Three js Clock
- */
-// const clock = new THREE.Clock()
 
 /**
  * 平面
@@ -138,15 +120,6 @@ addCandy();
  * frame loop
  */
 function tic() {
-  /**
-   * tempo trascorso dal frame precedente
-   */
-  // const deltaTime = clock.getDelta()
-  /**
-   * tempo totale trascorso dall'inizio
-   */
-  // const time = clock.getElapsedTime()
-
   controls.update();
 
   renderer.render(scene, camera);
