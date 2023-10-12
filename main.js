@@ -4,8 +4,9 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Snake from "./src/snake.js";
 import Candy from "./src/candy.js";
 import Rock from "./src/rock.js";
+import Tree from "./src/tree.js";
 
-const resolution = new THREE.Vector2(10, 10);
+const resolution = new THREE.Vector2(20, 20);
 
 /**
  * Scene
@@ -119,7 +120,14 @@ function restGame() {
     candy = candies.pop();
   }
 
+  let entity = entities.pop();
+  while (entity) {
+    scene.remove(entity.mesh);
+    entity = entities.pop();
+  }
+
   addCandy();
+  generateEntities();
 }
 
 const candies = [];
@@ -151,10 +159,10 @@ function getFreeIndex() {
   } while (snake.indexes.includes(index) || candyIndexes.includes(index) || entityIndexes.includes(index));
 
   return index;
-} 
+}
 
 function addEntity() {
-  const entity = new Rock(resolution);
+  const entity = Math.random() > 0.5 ? new Rock(resolution) : new Tree(resolution);
 
   let index = getFreeIndex();
 
@@ -166,9 +174,13 @@ function addEntity() {
   scene.add(entity.mesh);
 }
 
-for (let i = 0; i < 5; i++) {
-  addEntity();
+function generateEntities() {
+  for (let i = 0; i < 20; i++) {
+    addEntity();
+  }
 }
+
+generateEntities()
 
 /**
  * frame loop

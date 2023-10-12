@@ -36,6 +36,7 @@ export default class Snake extends EventDispatcher {
   }
 
   init() {
+    this.direction = UP
     const head = new ListNode(new SnakeNode(this.resolution));
     head.data.mesh.position.x = this.resolution.x / 2;
     head.data.mesh.position.z = this.resolution.y / 2;
