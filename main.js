@@ -44,6 +44,10 @@ const renderer = new THREE.WebGLRenderer({
 document.body.appendChild(renderer.domElement);
 handleResize();
 
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+renderer.shadowMap.enabled = true;
+
 /**
  * OrbitControls
  */
@@ -54,13 +58,16 @@ controls.target.set(resolution.x / 2, 2, resolution.y / 2);
 /**
  * 平面
  */
-const planeGeometry = new THREE.PlaneGeometry(resolution.x, resolution.y, resolution.x, resolution.y);
+const planeGeometry = new THREE.PlaneGeometry(resolution.x * 50, resolution.y * 50);
 planeGeometry.rotateX(-Math.PI * 0.5);
-const planMaterial = new THREE.MeshNormalMaterial({ wireframe: true });
+const planMaterial = new THREE.MeshStandardMaterial({ color: 0xff7438 });
 const plane = new THREE.Mesh(planeGeometry, planMaterial);
 plane.position.x = resolution.x / 2 - 0.5;
 plane.position.z = resolution.y / 2 - 0.5;
+plane.position.y = -0.5;
 scene.add(plane);
+
+plane.receiveShadow = true;
 
 // 创建蛇
 const snake = new Snake({ scene, resolution });
@@ -180,7 +187,16 @@ function generateEntities() {
   }
 }
 
-generateEntities()
+generateEntities();
+
+const ambLight = new THREE.AmbientLight(0xffffff, 0.5);
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.4);
+
+dirLight.position.set(10.1, 10);
+
+dirLight.castShadow = true;
+
+scene.add(ambLight, dirLight);
 
 /**
  * frame loop

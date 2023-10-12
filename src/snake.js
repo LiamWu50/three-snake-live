@@ -6,7 +6,9 @@ import * as THREE from "three";
 import Entity from "./entity.js";
 
 const NODE_GEOMETRY = new RoundedBoxGeometry(0.9, 0.9, 0.9, 5, 0.1);
-const NODE_MATERIAL = new MeshNormalMaterial();
+const NODE_MATERIAL = new THREE.MeshStandardMaterial({
+  color: 0xff470a,
+});
 
 const UP = new THREE.Vector3(0, 0, -1);
 const DOWN = new THREE.Vector3(0, 0, 1);
