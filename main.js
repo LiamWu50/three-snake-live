@@ -57,6 +57,9 @@ renderer.shadowMap.type = THREE.VSMShadowMap;
  */
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+controls.enableZoom = false
+controls.enablePan = false
+controls.enableRotate = false
 controls.target.set(resolution.x / 2 + 4, 0, resolution.y / 2 + 4);
 
 /**
@@ -113,7 +116,7 @@ function startGame() {
   if (!isRunning) {
     isRunning = setInterval(() => {
       snake.update();
-    }, 400);
+    }, 300);
   }
 }
 

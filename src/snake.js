@@ -37,12 +37,47 @@ export default class Snake extends EventDispatcher {
     return this.body.end;
   }
 
+  createHeadMesh() {
+    const headMesh = this.body.head.data.mesh;
+
+    const leftEye = new THREE.Mesh(
+      new THREE.SphereGeometry(0.2, 10, 10),
+      new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+      })
+    );
+    leftEye.scale.x = 0.1;
+    leftEye.position.x = 0.5;
+    leftEye.position.y = 0.1;
+    leftEye.position.z = 0.1;
+
+    const rightEye = leftEye.clone();
+    rightEye.position.x = -0.5;
+
+    const mouthMesh = new Mesh(
+      new RoundedBoxGeometry(1.1, 0.08, 0.5, 5, 0.08),
+      new THREE.MeshStandardMaterial({
+        color: 0x614bdd,
+      })
+    );
+
+    mouthMesh.rotation.x = -Math.PI * 0.1;
+    mouthMesh.position.z = 0.3;
+    mouthMesh.position.y = -0.2;
+
+    headMesh.add(leftEye, rightEye, mouthMesh);
+
+    headMesh.lookAt(headMesh.position.clone().add(this.direction));
+  }
+
   init() {
-    this.direction = UP
+    this.direction = UP;
     const head = new ListNode(new SnakeNode(this.resolution));
     head.data.mesh.position.x = this.resolution.x / 2;
     head.data.mesh.position.z = this.resolution.y / 2;
+
     this.body = new LinkedList(head);
+    this.createHeadMesh();
 
     this.indexes.push(this.head.data.getIndexByCoord());
     for (let i = 0; i < 3; i++) {
@@ -91,6 +126,7 @@ export default class Snake extends EventDispatcher {
 
     if (this.end.data.candy) {
       this.end.data.candy = null;
+      this.end.data.mesh.scale.setScalar(1);
       this.addTailNode();
     }
 
@@ -98,7 +134,9 @@ export default class Snake extends EventDispatcher {
       const candy = currentNode.prev.data.candy;
       if (candy) {
         currentNode.data.candy = candy;
+        currentNode.data.mesh.scale.setScalar(1.1);
         currentNode.prev.data.candy = null;
+        currentNode.prev.data.mesh.scale.setScalar(1);
       }
 
       const position = currentNode.prev.data.mesh.position;
@@ -108,6 +146,9 @@ export default class Snake extends EventDispatcher {
 
     const headPos = currentNode.data.mesh.position;
     headPos.add(this.direction);
+
+    const headMesh = this.body.head.data.mesh;
+    headMesh.lookAt(headMesh.position.clone().add(this.direction));
 
     if (headPos.z < 0) {
       headPos.z = this.resolution.y - 1;
@@ -150,7 +191,7 @@ export default class Snake extends EventDispatcher {
 
     const entity = entities.find((entity) => entity.getIndexByCoord() === headIndex);
 
-    return !!entity; 
+    return !!entity;
   }
 
   updateIndexes() {
