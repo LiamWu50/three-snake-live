@@ -12,6 +12,9 @@ const resolution = new THREE.Vector2(20, 20);
  * Scene
  */
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xdd9b64);
+
+scene.fog = new THREE.Fog(0xdd9b64, 30, 80);
 
 /**
  * render sizes
@@ -25,14 +28,14 @@ const sizes = {
  */
 const fov = 60;
 const camera = new THREE.PerspectiveCamera(fov, sizes.width / sizes.height, 0.1);
-camera.position.set(resolution.x / 2 + 4, 8, resolution.y / 2 + 4);
+camera.position.set(8 + resolution.x / 2, resolution.x / 2, resolution.y + 6);
 camera.lookAt(new THREE.Vector3(0, 2.5, 0));
 
 /**
  * Show the axes of coordinates system
  */
 const axesHelper = new THREE.AxesHelper(3);
-scene.add(axesHelper);
+// scene.add(axesHelper);
 
 /**
  * renderer
@@ -47,13 +50,14 @@ handleResize();
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.2;
 renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.VSMShadowMap;
 
 /**
  * OrbitControls
  */
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.target.set(resolution.x / 2, 2, resolution.y / 2);
+controls.target.set(resolution.x / 2 + 4, 0, resolution.y / 2 + 4);
 
 /**
  * 平面
@@ -190,9 +194,17 @@ function generateEntities() {
 generateEntities();
 
 const ambLight = new THREE.AmbientLight(0xffffff, 0.5);
-const dirLight = new THREE.DirectionalLight(0xffffff, 0.4);
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
 
-dirLight.position.set(10.1, 10);
+dirLight.position.set(20, 20, 20);
+dirLight.target.position.set(resolution.x, 0, resolution.y);
+dirLight.shadow.mapSize.set(1024, 1024);
+dirLight.shadow.radius = 6;
+dirLight.shadow.blurSamples = 20;
+dirLight.shadow.camera.top = 30;
+dirLight.shadow.camera.bottom = -30;
+dirLight.shadow.camera.left = -30;
+dirLight.shadow.camera.right = 30;
 
 dirLight.castShadow = true;
 
