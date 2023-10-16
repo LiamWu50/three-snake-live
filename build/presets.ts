@@ -10,7 +10,7 @@ export default (env, isBuild) => {
   if (isBuild) {
     plugins.push(
       visualizer({
-        open: true,
+        open: false,
         gzipSize: true,
         brotliSize: true
       })

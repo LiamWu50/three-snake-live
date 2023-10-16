@@ -9,7 +9,7 @@ export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
-    base: env.VITE_BASE,
+    base: './',
     plugins: [presets(env, isBuild)],
     resolve: {
       // 设置别名
