@@ -8,13 +8,25 @@ import Tree from "./src/tree.js";
 
 const resolution = new THREE.Vector2(20, 20);
 
+const gridHelper = new THREE.GridHelper(
+	resolution.x,
+	resolution.y,
+	0xffffff,
+	0xffffff
+)
+gridHelper.position.set(resolution.x / 2 - 0.5, -0.49, resolution.y / 2 - 0.5)
+gridHelper.material.transparent = true
+gridHelper.material.opacity = 0.3
+
 /**
  * Scene
  */
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xdd9b64);
+scene.background = new THREE.Color(0xffac38);
 
-scene.fog = new THREE.Fog(0xdd9b64, 30, 80);
+scene.fog = new THREE.Fog(0xffac38, 5, 40);
+
+scene.add(gridHelper)
 
 /**
  * render sizes
@@ -28,14 +40,14 @@ const sizes = {
  */
 const fov = 60;
 const camera = new THREE.PerspectiveCamera(fov, sizes.width / sizes.height, 0.1);
-camera.position.set(8 + resolution.x / 2, resolution.x / 2, resolution.y + 6);
-camera.lookAt(new THREE.Vector3(0, 2.5, 0));
+const finalPosition = new THREE.Vector3(
+  -8 + resolution.x / 2,
+  resolution.x / 2 + 4,
+  resolution.y + 6
+)
+camera.position.copy(finalPosition)
+// camera.lookAt(new THREE.Vector3(0, 2.5, 0));
 
-/**
- * Show the axes of coordinates system
- */
-const axesHelper = new THREE.AxesHelper(3);
-// scene.add(axesHelper);
 
 /**
  * renderer
@@ -56,18 +68,18 @@ renderer.shadowMap.type = THREE.VSMShadowMap;
  * OrbitControls
  */
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.enableZoom = false
-controls.enablePan = false
-controls.enableRotate = false
-controls.target.set(resolution.x / 2 + 4, 0, resolution.y / 2 + 4);
+// controls.enableDamping = true;
+// controls.enableZoom = false
+// controls.enablePan = false
+// controls.enableRotate = false
+controls.target.set(resolution.x / 2 - 2, 0, resolution.y / 2 + 2);
 
 /**
  * 平面
  */
 const planeGeometry = new THREE.PlaneGeometry(resolution.x * 50, resolution.y * 50);
 planeGeometry.rotateX(-Math.PI * 0.5);
-const planMaterial = new THREE.MeshStandardMaterial({ color: 0xff7438 });
+const planMaterial = new THREE.MeshStandardMaterial({ color: 0xd68a4c });
 const plane = new THREE.Mesh(planeGeometry, planMaterial);
 plane.position.x = resolution.x / 2 - 0.5;
 plane.position.z = resolution.y / 2 - 0.5;
