@@ -1,5 +1,10 @@
+import { Mesh, Vector2 } from 'three'
+
 export default class Entity {
-  constructor(mesh, resolution) {
+  public mesh: Mesh
+  private resolution: Vector2
+
+  constructor(mesh: Mesh, resolution: Vector2) {
     this.mesh = mesh
     mesh.castShadow = true
     mesh.receiveShadow = true

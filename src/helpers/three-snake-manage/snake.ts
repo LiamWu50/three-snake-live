@@ -1,49 +1,82 @@
-import { EventDispatcher, Mesh, Vector2 } from 'three'
-import * as THREE from 'three'
+import {
+  Color,
+  EventDispatcher,
+  Mesh,
+  MeshStandardMaterial,
+  Scene,
+  SphereGeometry,
+  Vector2,
+  Vector3
+} from 'three'
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry'
 
-import Entity from './entity.js'
+import Entity from './entity'
 import LinkedList from './linked-list'
 import ListNode from './list-node'
 
 const NODE_GEOMETRY = new RoundedBoxGeometry(0.9, 0.9, 0.9, 5, 0.1)
-const NODE_MATERIAL = new THREE.MeshStandardMaterial({
+const NODE_MATERIAL = new MeshStandardMaterial({
   color: 0xff470a
 })
 
-const UP = new THREE.Vector3(0, 0, -1)
-const DOWN = new THREE.Vector3(0, 0, 1)
-const LEFT = new THREE.Vector3(-1, 0, 0)
-const RIGHT = new THREE.Vector3(1, 0, 0)
+const UP = new Vector3(0, 0, -1)
+const DOWN = new Vector3(0, 0, 1)
+const LEFT = new Vector3(-1, 0, 0)
+const RIGHT = new Vector3(1, 0, 0)
 
 export default class Snake extends EventDispatcher {
-  direction = LEFT
-  indexes = []
+  public body!: LinkedList
+  private direction: Vector3 = LEFT
+  private newDirection: Vector3 | null = null
+  public indexes: number[] = []
 
-  constructor({ scene, resolution = new Vector2(10, 10) }) {
-    // 创建一个头部
+  private scene: Scene
+  private resolution: Vector2
+
+  constructor(scene: Scene, resolution = new Vector2(10, 10)) {
     super()
-
     this.scene = scene
     this.resolution = resolution
 
     this.init()
   }
 
-  get head() {
+  get head(): ListNode {
     return this.body.head
   }
 
-  get end() {
+  get end(): ListNode {
     return this.body.end
   }
 
-  createHeadMesh() {
+  private init() {
+    this.direction = UP
+    const head = new ListNode(new SnakeNode(this.resolution))
+    head.data.mesh.position.x = this.resolution.x / 2
+    head.data.mesh.position.z = this.resolution.y / 2
+
+    this.body = new LinkedList(head)
+    this.createHeadMesh()
+
+    this.indexes.push(this.head.data.getIndexByCoord())
+    for (let i = 0; i < 3; i++) {
+      const position = this.end.data.mesh.position.clone()
+      position.sub(this.direction)
+      this.addTailNode(position)
+      this.end.data.mesh.position.copy(position)
+
+      this.indexes.push(this.end.data.getIndexByCoord())
+    }
+
+    this.scene.add(head.data.mesh)
+  }
+
+  private createHeadMesh() {
     const headMesh = this.body.head.data.mesh
 
-    const leftEye = new THREE.Mesh(
-      new THREE.SphereGeometry(0.2, 10, 10),
-      new THREE.MeshStandardMaterial({
+    const leftEye = new Mesh(
+      new SphereGeometry(0.2, 10, 10),
+      new MeshStandardMaterial({
         color: 0xffffff
       })
     )
@@ -57,8 +90,8 @@ export default class Snake extends EventDispatcher {
 
     const mouthMesh = new Mesh(
       new RoundedBoxGeometry(1.1, 0.08, 0.5, 5, 0.08),
-      new THREE.MeshStandardMaterial({
-        color: 0x614bdd
+      new MeshStandardMaterial({
+        color: new Color(0x614bdd)
       })
     )
 
@@ -71,29 +104,7 @@ export default class Snake extends EventDispatcher {
     headMesh.lookAt(headMesh.position.clone().add(this.direction))
   }
 
-  init() {
-    this.direction = UP
-    const head = new ListNode(new SnakeNode(this.resolution))
-    head.data.mesh.position.x = this.resolution.x / 2
-    head.data.mesh.position.z = this.resolution.y / 2
-
-    this.body = new LinkedList(head)
-    this.createHeadMesh()
-
-    this.indexes.push(this.head.data.getIndexByCoord())
-    for (let i = 0; i < 3; i++) {
-      const position = this.end.data.mesh.position.clone()
-      position.sub(this.direction)
-      this.addTailNode()
-      this.end.data.mesh.position.copy(position)
-
-      this.indexes.push(this.end.data.getIndexByCoord())
-    }
-
-    this.scene.add(head.data.mesh)
-  }
-
-  setDirection(keyCode) {
+  public setDirection(keyCode: string) {
     switch (keyCode) {
       case 'ArrowUp':
         this.newDirection = UP
@@ -117,7 +128,7 @@ export default class Snake extends EventDispatcher {
     }
   }
 
-  update() {
+  public update() {
     if (this.newDirection) {
       this.direction = this.newDirection
       this.newDirection = null
@@ -140,7 +151,7 @@ export default class Snake extends EventDispatcher {
         currentNode.prev.data.mesh.scale.setScalar(1)
       }
 
-      const position = currentNode.prev.data.mesh.position
+      const position = currentNode.prev.data.mesh.position.clone()
       currentNode.data.mesh.position.copy(position)
       currentNode = currentNode.prev
     }
@@ -167,28 +178,28 @@ export default class Snake extends EventDispatcher {
     this.dispatchEvent({ type: 'update' })
   }
 
-  die() {
+  public die() {
     let node = this.body.head
 
     do {
       this.scene.remove(node.data.mesh)
-      node = node.next
+      node = node.next as ListNode
     } while (node)
 
     this.init()
-    this.addEventListener({ type: 'die' })
+    this.dispatchEvent({ type: 'die' })
   }
 
-  checkSelfCollision() {
-    const headIndex = this.indexes.pop()
+  public checkSelfCollision() {
+    const headIndex = this.indexes.pop() as number
     const collide = this.indexes.includes(headIndex)
     this.indexes.push(headIndex)
 
     return collide
   }
 
-  checkEntitiesCollision(entities) {
-    const headIndex = this.indexes.at(-1)
+  public checkEntitiesCollision(entities: Entity[]): boolean {
+    const headIndex = this.indexes[this.indexes.length - 1]
 
     const entity = entities.find(
       (entity) => entity.getIndexByCoord() === headIndex
@@ -197,18 +208,18 @@ export default class Snake extends EventDispatcher {
     return !!entity
   }
 
-  updateIndexes() {
+  private updateIndexes() {
     this.indexes = []
 
     let node = this.body.end
 
     while (node) {
       this.indexes.push(node.data.getIndexByCoord())
-      node = node.prev
+      node = node.prev as ListNode
     }
   }
 
-  addTailNode(position) {
+  private addTailNode(position?: Vector3) {
     const node = new ListNode(new SnakeNode(this.resolution))
 
     if (position) {
@@ -222,8 +233,10 @@ export default class Snake extends EventDispatcher {
   }
 }
 
-class SnakeNode extends Entity {
-  constructor(resolution) {
+export class SnakeNode extends Entity {
+  public candy: Entity | null = null
+
+  constructor(resolution: Vector2) {
     const mesh = new Mesh(NODE_GEOMETRY, NODE_MATERIAL)
     super(mesh, resolution)
   }

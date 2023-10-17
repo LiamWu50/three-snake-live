@@ -56,15 +56,6 @@ export default defineConfig(({ command, mode }) => {
           assetFileNames: 'static/[ext]/[name]-[hash].[ext]'
         }
       }
-    },
-    css: {
-      preprocessorOptions: {
-        //define global scss variable
-        scss: {
-          // eslint-disable-next-line quotes
-          additionalData: "@import '@/assets/styles/variables.scss';"
-        }
-      }
     }
   }
 })

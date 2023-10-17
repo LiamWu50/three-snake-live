@@ -1,6 +1,6 @@
-import { IcosahedronGeometry, Mesh, MeshStandardMaterial } from 'three'
+import { IcosahedronGeometry, Mesh, MeshStandardMaterial, Vector2 } from 'three'
 
-import Entity from './entity.js'
+import Entity from './entity'
 
 const GEOMETRY = new IcosahedronGeometry(0.5)
 const MATERIAL = new MeshStandardMaterial({
@@ -9,7 +9,7 @@ const MATERIAL = new MeshStandardMaterial({
 })
 
 export default class Rock extends Entity {
-  constructor(resolution) {
+  constructor(resolution: Vector2) {
     const mesh = new Mesh(GEOMETRY, MATERIAL)
     mesh.scale.set(Math.random() * 0.5 + 0.5, 0.1 + Math.random() ** 2 * 1.9, 1)
     mesh.rotation.y = Math.random() * Math.PI * 2

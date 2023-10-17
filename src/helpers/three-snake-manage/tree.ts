@@ -1,4 +1,4 @@
-import { IcosahedronGeometry, Mesh, MeshStandardMaterial } from 'three'
+import { IcosahedronGeometry, Mesh, MeshStandardMaterial, Vector2 } from 'three'
 
 import Entity from './entity.js'
 
@@ -10,7 +10,7 @@ const MATERIAL = new MeshStandardMaterial({
 })
 
 export default class Tree extends Entity {
-  constructor(resolution) {
+  constructor(resolution: Vector2) {
     const mesh = new Mesh(GEOMETRY, MATERIAL)
     mesh.scale.setScalar(0.6 + Math.random() * 0.6)
     mesh.rotation.y = Math.random() * Math.PI * 2
