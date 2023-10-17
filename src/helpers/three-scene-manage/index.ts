@@ -1,17 +1,33 @@
-import * as THREE from 'three'
+import {
+  ACESFilmicToneMapping,
+  AmbientLight,
+  Color,
+  DirectionalLight,
+  Fog,
+  GridHelper,
+  Mesh,
+  MeshStandardMaterial,
+  PerspectiveCamera,
+  PlaneGeometry,
+  Scene,
+  Vector2,
+  Vector3,
+  VSMShadowMap,
+  WebGLRenderer
+} from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 export default new (class ThreeSceneManage {
   private container!: HTMLDivElement
-  public resolution: THREE.Vector2
-  public scene!: THREE.Scene
+  public resolution: Vector2
+  public scene!: Scene
   private sizes: { width: number; height: number }
   private controls!: OrbitControls
-  private camera!: THREE.PerspectiveCamera
-  private renderer!: THREE.WebGLRenderer
+  private camera!: PerspectiveCamera
+  private renderer!: WebGLRenderer
 
   constructor() {
-    this.resolution = new THREE.Vector2(20, 20)
+    this.resolution = new Vector2(20, 20)
     this.sizes = {
       width: window.innerWidth,
       height: window.innerHeight
@@ -34,16 +50,16 @@ export default new (class ThreeSceneManage {
 
     this.tic()
 
-    window.addEventListener('resize', this.handleResize)
+    window.addEventListener('resize', this.handleResize.bind(this))
   }
 
   /**
    * 创建场景
    */
   private createScene() {
-    this.scene = new THREE.Scene()
-    this.scene.background = new THREE.Color(0xffac38)
-    this.scene.fog = new THREE.Fog(0xffac38, 5, 40)
+    this.scene = new Scene()
+    this.scene.background = new Color(0xffac38)
+    this.scene.fog = new Fog(0xffac38, 5, 80)
   }
 
   /**
@@ -52,8 +68,8 @@ export default new (class ThreeSceneManage {
   private createCamera() {
     const fov = 60
     const aspect = this.sizes.width / this.sizes.height
-    this.camera = new THREE.PerspectiveCamera(fov, aspect, 0.1)
-    const finalPosition = new THREE.Vector3(
+    this.camera = new PerspectiveCamera(fov, aspect, 0.1)
+    const finalPosition = new Vector3(
       -8 + this.resolution.x / 2,
       this.resolution.x / 2 + 4,
       this.resolution.y + 6
@@ -65,17 +81,17 @@ export default new (class ThreeSceneManage {
    * 创建渲染器
    */
   private createRenderer() {
-    const renderer = new THREE.WebGLRenderer({
+    const renderer = new WebGLRenderer({
       antialias: window.devicePixelRatio < 2,
       logarithmicDepthBuffer: true
     })
 
     this.container.appendChild(renderer.domElement)
 
-    renderer.toneMapping = THREE.ACESFilmicToneMapping
+    renderer.toneMapping = ACESFilmicToneMapping
     renderer.toneMappingExposure = 1.2
     renderer.shadowMap.enabled = true
-    renderer.shadowMap.type = THREE.VSMShadowMap
+    renderer.shadowMap.type = VSMShadowMap
     this.renderer = renderer
     this.handleResize()
   }
@@ -84,13 +100,11 @@ export default new (class ThreeSceneManage {
    * 创建控制器
    */
   private createControls() {
-    console.log('this.camera', this.camera);
-    
     this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-    // this.controls.enableDamping = true
-    // this.controls.enableZoom = false
-    // this.controls.enablePan = false
-    // this.controls.enableRotate = false
+    this.controls.enableDamping = true
+    this.controls.enableZoom = false
+    this.controls.enablePan = false
+    this.controls.enableRotate = false
     this.controls.target.set(
       this.resolution.x / 2 - 2,
       0,
@@ -102,7 +116,7 @@ export default new (class ThreeSceneManage {
    * 创建网格辅助
    */
   private createGridHelper() {
-    const gridHelper = new THREE.GridHelper(
+    const gridHelper = new GridHelper(
       this.resolution.x,
       this.resolution.y,
       0xffffff,
@@ -122,8 +136,8 @@ export default new (class ThreeSceneManage {
    * 创建光源
    */
   private createLight() {
-    const ambLight = new THREE.AmbientLight(0xffffff, 0.5)
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.7)
+    const ambLight = new AmbientLight(0xffffff, 0.5)
+    const dirLight = new DirectionalLight(0xffffff, 0.7)
 
     dirLight.position.set(20, 20, 20)
     dirLight.target.position.set(this.resolution.x, 0, this.resolution.y)
@@ -145,13 +159,13 @@ export default new (class ThreeSceneManage {
    */
   private createScenePlane() {
     const resolution = this.resolution
-    const planeGeometry = new THREE.PlaneGeometry(
+    const planeGeometry = new PlaneGeometry(
       resolution.x * 50,
       resolution.y * 50
     )
     planeGeometry.rotateX(-Math.PI * 0.5)
-    const planMaterial = new THREE.MeshStandardMaterial({ color: 0xd68a4c })
-    const plane = new THREE.Mesh(planeGeometry, planMaterial)
+    const planMaterial = new MeshStandardMaterial({ color: 0xd68a4c })
+    const plane = new Mesh(planeGeometry, planMaterial)
     plane.position.x = resolution.x / 2 - 0.5
     plane.position.z = resolution.y / 2 - 0.5
     plane.position.y = -0.5

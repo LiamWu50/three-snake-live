@@ -9,8 +9,8 @@ export default function Snake() {
 
   useEffect(() => {
     ThreeSceneManage.init(containerRef.current as HTMLDivElement)
-    // const { scene, resolution } = ThreeSceneManage
-    // threeSnakeManage.current = new ThreeSnakeManage(scene, resolution)
+    const { scene, resolution } = ThreeSceneManage
+    threeSnakeManage.current = new ThreeSnakeManage(scene, resolution)
   }, [])
 
   return <div className='w-full h-full' ref={containerRef}></div>
