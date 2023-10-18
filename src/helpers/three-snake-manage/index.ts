@@ -1,5 +1,6 @@
 import gsap from 'gsap'
 import {
+  Color,
   Mesh,
   MeshStandardMaterial,
   Scene,
@@ -11,10 +12,13 @@ import fontSrc from 'three/examples/fonts/helvetiker_bold.typeface.json?url'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader'
 
+import palettes from '@/common/theme'
+
 import Entity, { Candy, Rock, Tree } from './entity'
 import Snake from './snake'
 
 const loader = new FontLoader()
+const paletteName = localStorage.getItem('paletteName') || 'green'
 
 export default class ThreeSnakeManage {
   public scene: Scene
@@ -26,12 +30,19 @@ export default class ThreeSnakeManage {
   private scoreEntity!: Entity
   private font: any
   private isRunning: null | number = null
+  private selectedPalette!: (typeof palettes)[keyof typeof palettes]
 
   constructor(scene: Scene, resolution: Vector2) {
     this.scene = scene
     this.resolution = resolution
     this.font = null
-    this.snake = new Snake(scene, resolution)
+    this.selectedPalette = palettes[paletteName as keyof typeof palettes]
+    this.snake = new Snake(
+      scene,
+      resolution,
+      this.selectedPalette.snakeColor,
+      this.selectedPalette.mouthColor
+    )
 
     loader.load(fontSrc, (loadedFont: any) => {
       this.font = loadedFont
@@ -43,6 +54,48 @@ export default class ThreeSnakeManage {
     this.addCandy()
     this.generateEntities()
     this.createEnvironment()
+  }
+
+  public applyPalette(paletteName: keyof typeof palettes) {
+    const palette = palettes[paletteName]
+    localStorage.setItem('paletteName', paletteName)
+
+    this.selectedPalette = palette
+
+    if (!palette) return
+
+    const {
+      fogColor,
+      rockColor,
+      treeColor,
+      candyColor,
+      snakeColor,
+      mouthColor
+    } = palette
+
+    // planeMaterial.color.set(groundColor)
+    this.scene.fog?.color.set(fogColor)
+    ;(this.scene.background as Color)?.set(fogColor)
+
+    const rock = this.entities.find((entity) => entity instanceof Rock)
+    ;(rock?.mesh.material as MeshStandardMaterial).color.set(rockColor)
+
+    const tree = this.entities.find((entity) => entity instanceof Tree)
+
+    ;(tree?.mesh.material as MeshStandardMaterial).color.set(treeColor)
+    ;(this.candies[0].mesh.material as MeshStandardMaterial).color.set(
+      candyColor
+    )
+    ;(
+      this.snake.body.head.data.mesh.material as MeshStandardMaterial
+    ).color.set(snakeColor)
+    ;(
+      this.snake.body.head.data.mesh.material as MeshStandardMaterial
+    ).color.set(snakeColor)
+    this.snake.mouthColor = mouthColor
+    ;(this.snake.mouth.material as MeshStandardMaterial).color.set(mouthColor)
+
+    // btnPlayImg.src = `/btn-play-bg-${paletteName}.png`
   }
 
   private startGame() {

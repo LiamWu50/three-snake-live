@@ -1,5 +1,4 @@
 import {
-  Color,
   EventDispatcher,
   Mesh,
   MeshStandardMaterial,
@@ -31,11 +30,23 @@ export default class Snake extends EventDispatcher {
 
   private scene: Scene
   private resolution: Vector2
+  public mouthColor: number
+  public mouth!: Mesh
 
-  constructor(scene: Scene, resolution = new Vector2(10, 10)) {
+  constructor(
+    scene: Scene,
+    resolution = new Vector2(10, 10),
+    color: number,
+    mouthColor: number
+  ) {
     super()
     this.scene = scene
     this.resolution = resolution
+    this.mouthColor = mouthColor
+
+    if (color) {
+      NODE_MATERIAL.color.set(color)
+    }
 
     this.init()
   }
@@ -90,13 +101,15 @@ export default class Snake extends EventDispatcher {
     const mouthMesh = new Mesh(
       new RoundedBoxGeometry(1.1, 0.08, 0.5, 5, 0.08),
       new MeshStandardMaterial({
-        color: new Color(0x614bdd)
+        color: this.mouthColor
       })
     )
 
     mouthMesh.rotation.x = -Math.PI * 0.1
     mouthMesh.position.z = 0.3
     mouthMesh.position.y = -0.2
+
+    this.mouth = mouthMesh
 
     headMesh.add(leftEye, rightEye, mouthMesh)
 
