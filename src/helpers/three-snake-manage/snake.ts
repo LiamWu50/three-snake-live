@@ -174,7 +174,7 @@ export default class Snake extends EventDispatcher {
     }
 
     this.updateIndexes()
-    this.dispatchEvent({ type: 'update' })
+    this.dispatchEvent({ type: 'update' } as never)
   }
 
   public die() {
@@ -186,7 +186,6 @@ export default class Snake extends EventDispatcher {
     } while (node)
 
     this.init()
-    this.dispatchEvent({ type: 'die' })
   }
 
   public checkSelfCollision() {

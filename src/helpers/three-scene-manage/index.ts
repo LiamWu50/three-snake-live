@@ -101,10 +101,10 @@ export default new (class ThreeSceneManage {
    */
   private createControls() {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-    this.controls.enableDamping = true
-    this.controls.enableZoom = false
-    this.controls.enablePan = false
-    this.controls.enableRotate = false
+    // this.controls.enableDamping = true
+    // this.controls.enableZoom = false
+    // this.controls.enablePan = false
+    // this.controls.enableRotate = false
     this.controls.target.set(
       this.resolution.x / 2 - 2,
       0,

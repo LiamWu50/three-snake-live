@@ -1,3 +1,4 @@
+import gsap from 'gsap'
 import {
   IcosahedronGeometry,
   Mesh,
@@ -12,13 +13,19 @@ import {
 export default class Entity {
   public mesh: Mesh
   private resolution: Vector2
+  public option: { size: number; number: number }
 
-  constructor(mesh: Mesh, resolution: Vector2) {
+  constructor(
+    mesh: Mesh,
+    resolution: Vector2,
+    option = { size: 1.5, number: 0.5 }
+  ) {
     this.mesh = mesh
     mesh.castShadow = true
     mesh.receiveShadow = true
 
     this.resolution = resolution
+    this.option = option
   }
 
   get position() {
@@ -28,6 +35,16 @@ export default class Entity {
   getIndexByCoord() {
     const { x } = this.resolution
     return this.position.z * x + this.position.x
+  }
+
+  in() {
+    gsap.from(this.mesh.scale, {
+      duration: 1,
+      x: 0,
+      y: 0,
+      z: 0,
+      ease: `elastic.out(${this.option.size}, ${this.option.number})`
+    })
   }
 }
 
@@ -40,9 +57,14 @@ const CANDY_MATERIAL = new MeshStandardMaterial({
 })
 
 export class Candy extends Entity {
+  public points: number
+
   constructor(resolution: Vector2) {
     const mesh = new Mesh(CANDY_GEOMETRY, CANDY_MATERIAL)
     super(mesh, resolution)
+
+    this.points = Math.floor(Math.random() * 3) + 1
+    this.mesh.scale.setScalar(0.5 + (this.points * 0.5) / 3)
   }
 }
 
