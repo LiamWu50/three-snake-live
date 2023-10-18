@@ -1,10 +1,7 @@
 import { Scene, Vector2 } from 'three'
 
-import Candy from './candy'
-import Entity from './entity'
-import Rock from './rock'
+import Entity, { Candy, Rock, Tree } from './entity'
 import Snake from './snake'
-import Tree from './tree'
 
 export default class ThreeSnakeManage {
   public scene: Scene

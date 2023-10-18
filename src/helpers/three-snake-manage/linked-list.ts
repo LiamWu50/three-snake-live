@@ -1,6 +1,9 @@
-import ListNode from './list-node'
+import { SnakeNode } from './snake'
 
-export default class LinkedList {
+/**
+ * @description A linked list data structure
+ */
+export class LinkedList {
   public head: ListNode
   public end: ListNode
 
@@ -12,5 +15,25 @@ export default class LinkedList {
   addNode(node: ListNode) {
     this.end.linkTo(node)
     this.end = node
+  }
+}
+
+/**
+ * @description A node of linked list
+ */
+export class ListNode {
+  data: SnakeNode
+  next: ListNode | null
+  prev: ListNode | null
+
+  constructor(data: SnakeNode) {
+    this.data = data
+    this.next = null
+    this.prev = null
+  }
+
+  linkTo(node: ListNode) {
+    this.next = node
+    node.prev = this
   }
 }

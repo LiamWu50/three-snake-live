@@ -11,8 +11,7 @@ import {
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry'
 
 import Entity from './entity'
-import LinkedList from './linked-list'
-import ListNode from './list-node'
+import { LinkedList, ListNode } from './linked-list'
 
 const NODE_GEOMETRY = new RoundedBoxGeometry(0.9, 0.9, 0.9, 5, 0.1)
 const NODE_MATERIAL = new MeshStandardMaterial({
