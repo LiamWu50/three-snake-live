@@ -59,9 +59,13 @@ const CANDY_MATERIAL = new MeshStandardMaterial({
 export class Candy extends Entity {
   public points: number
 
-  constructor(resolution: Vector2) {
+  constructor(resolution: Vector2, color: number) {
     const mesh = new Mesh(CANDY_GEOMETRY, CANDY_MATERIAL)
     super(mesh, resolution)
+
+    if (color) {
+      CANDY_MATERIAL.color.set(color)
+    }
 
     this.points = Math.floor(Math.random() * 3) + 1
     this.mesh.scale.setScalar(0.5 + (this.points * 0.5) / 3)
@@ -78,13 +82,17 @@ const ROCK_MATERIAL = new MeshStandardMaterial({
 })
 
 export class Rock extends Entity {
-  constructor(resolution: Vector2) {
+  constructor(resolution: Vector2, color?: number) {
     const mesh = new Mesh(ROCK_GEOMETRY, ROCK_MATERIAL)
-    mesh.scale.set(Math.random() * 0.5 + 0.5, 0.1 + Math.random() ** 2 * 1.9, 1)
+    mesh.scale.set(Math.random() * 0.5 + 0.5, 0.5 + Math.random() ** 2 * 1.9, 1)
     mesh.rotation.y = Math.random() * Math.PI * 2
     mesh.rotation.x = Math.random() * Math.PI * 0.1
     mesh.rotation.order = 'YXZ'
     mesh.position.y = -0.5
+
+    if (color) {
+      ROCK_MATERIAL.color.set(color)
+    }
 
     super(mesh, resolution)
   }
@@ -93,7 +101,8 @@ export class Rock extends Entity {
 /**
  * 树
  */
-const TREE_GEOMETRY = new IcosahedronGeometry(0.3, 1)
+const TREE_GEOMETRY = new IcosahedronGeometry(0.3)
+TREE_GEOMETRY.rotateX(Math.random() * Math.PI * 2)
 TREE_GEOMETRY.scale(1, 6, 1)
 const TREE_MATERIAL = new MeshStandardMaterial({
   flatShading: true,
@@ -101,10 +110,14 @@ const TREE_MATERIAL = new MeshStandardMaterial({
 })
 
 export class Tree extends Entity {
-  constructor(resolution: Vector2) {
+  constructor(resolution: Vector2, color?: number) {
     const mesh = new Mesh(TREE_GEOMETRY, TREE_MATERIAL)
     mesh.scale.setScalar(0.6 + Math.random() * 0.6)
     mesh.rotation.y = Math.random() * Math.PI * 2
+
+    if (color) {
+      TREE_MATERIAL.color.set(color)
+    }
 
     super(mesh, resolution)
   }

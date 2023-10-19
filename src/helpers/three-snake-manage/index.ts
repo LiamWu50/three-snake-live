@@ -1,8 +1,8 @@
 import gsap from 'gsap'
 import {
-  Color,
   Mesh,
   MeshStandardMaterial,
+  PerspectiveCamera,
   Scene,
   Vector2,
   Vector3,
@@ -22,6 +22,7 @@ const paletteName = localStorage.getItem('paletteName') || 'green'
 
 export default class ThreeSnakeManage {
   public scene: Scene
+  private camera!: PerspectiveCamera
   public resolution: Vector2
   public snake: Snake
   private candies: Candy[] = []
@@ -32,8 +33,9 @@ export default class ThreeSnakeManage {
   private isRunning: null | number = null
   private selectedPalette!: (typeof palettes)[keyof typeof palettes]
 
-  constructor(scene: Scene, resolution: Vector2) {
+  constructor(scene: Scene, camera: PerspectiveCamera, resolution: Vector2) {
     this.scene = scene
+    this.camera = camera
     this.resolution = resolution
     this.font = null
     this.selectedPalette = palettes[paletteName as keyof typeof palettes]
@@ -50,52 +52,51 @@ export default class ThreeSnakeManage {
     })
 
     this.bindSnakeUpdateEvent()
-    this.bindKeyboardEvent()
     this.addCandy()
     this.generateEntities()
     this.createEnvironment()
   }
 
-  public applyPalette(paletteName: keyof typeof palettes) {
-    const palette = palettes[paletteName]
-    localStorage.setItem('paletteName', paletteName)
+  public initGame() {
+    const finalPosition = new Vector3(
+      -8 + this.resolution.x / 2,
+      this.resolution.x / 2 + 4,
+      this.resolution.y + 6
+    )
+    gsap.to(this.camera.position, { ...finalPosition, duration: 2 })
+    gsap.to(this.scene.fog, { duration: 2, near: 20, far: 55 })
+
+    this.bindKeyboardEvent()
+  }
+
+  public applyPalette(paletteName: string) {
+    const palette = palettes[paletteName as keyof typeof palettes]
 
     this.selectedPalette = palette
 
     if (!palette) return
 
-    const {
-      fogColor,
-      rockColor,
-      treeColor,
-      candyColor,
-      snakeColor,
-      mouthColor
-    } = palette
-
-    // planeMaterial.color.set(groundColor)
-    this.scene.fog?.color.set(fogColor)
-    ;(this.scene.background as Color)?.set(fogColor)
+    const { rockColor, treeColor, candyColor, snakeColor, mouthColor } = palette
 
     const rock = this.entities.find((entity) => entity instanceof Rock)
-    ;(rock?.mesh.material as MeshStandardMaterial).color.set(rockColor)
+    const rockMaterial = rock?.mesh.material as MeshStandardMaterial
+    rockMaterial.color.set(rockColor)
 
     const tree = this.entities.find((entity) => entity instanceof Tree)
+    const treeMaterial = tree?.mesh.material as MeshStandardMaterial
+    treeMaterial.color.set(treeColor)
 
-    ;(tree?.mesh.material as MeshStandardMaterial).color.set(treeColor)
-    ;(this.candies[0].mesh.material as MeshStandardMaterial).color.set(
-      candyColor
-    )
-    ;(
-      this.snake.body.head.data.mesh.material as MeshStandardMaterial
-    ).color.set(snakeColor)
-    ;(
-      this.snake.body.head.data.mesh.material as MeshStandardMaterial
-    ).color.set(snakeColor)
+    const candiesMaterial = this.candies[0].mesh
+      .material as MeshStandardMaterial
+    candiesMaterial.color.set(candyColor)
+
+    const headMaterial = this.snake.body.head.data.mesh
+      .material as MeshStandardMaterial
+    headMaterial.color.set(snakeColor)
+
     this.snake.mouthColor = mouthColor
-    ;(this.snake.mouth.material as MeshStandardMaterial).color.set(mouthColor)
-
-    // btnPlayImg.src = `/btn-play-bg-${paletteName}.png`
+    const snakeMaterial = this.snake.mouth.material as MeshStandardMaterial
+    snakeMaterial.color.set(mouthColor)
   }
 
   private startGame() {
@@ -131,7 +132,7 @@ export default class ThreeSnakeManage {
   }
 
   private addCandy() {
-    const candy = new Candy(this.resolution)
+    const candy = new Candy(this.resolution, this.selectedPalette.candyColor)
 
     const index = this.getFreeIndex()
 
@@ -172,14 +173,15 @@ export default class ThreeSnakeManage {
   }
 
   private bindKeyboardEvent() {
-    window.addEventListener('keydown', (e: KeyboardEvent) => {
+    window.addEventListener('keyup', (e: KeyboardEvent) => {
       const keyCode = e.code
+      this.snake.setDirection(keyCode)
 
       if (keyCode === 'Space') {
         !this.isRunning ? this.startGame() : this.stopGame()
+      } else if (!this.isRunning) {
+        this.startGame()
       }
-
-      this.snake.setDirection(keyCode)
     })
   }
 
@@ -203,8 +205,8 @@ export default class ThreeSnakeManage {
   private addEntity() {
     const entity =
       Math.random() > 0.5
-        ? new Rock(this.resolution)
-        : new Tree(this.resolution)
+        ? new Rock(this.resolution, this.selectedPalette.rockColor)
+        : new Tree(this.resolution, this.selectedPalette.treeColor)
 
     const index = this.getFreeIndex()
 

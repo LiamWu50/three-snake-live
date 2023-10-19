@@ -24,7 +24,7 @@ const RIGHT = new Vector3(1, 0, 0)
 
 export default class Snake extends EventDispatcher {
   public body!: LinkedList
-  private direction: Vector3 = LEFT
+  private direction: Vector3 = RIGHT
   private newDirection: Vector3 | null = null
   public indexes: number[] = []
 
@@ -60,7 +60,7 @@ export default class Snake extends EventDispatcher {
   }
 
   private init() {
-    this.direction = UP
+    this.direction = RIGHT
     const head = new ListNode(new SnakeNode(this.resolution))
     head.data.mesh.position.x = this.resolution.x / 2
     head.data.mesh.position.z = this.resolution.y / 2
@@ -74,10 +74,10 @@ export default class Snake extends EventDispatcher {
       position.sub(this.direction)
       this.addTailNode(position)
       this.end.data.mesh.position.copy(position)
-
       this.indexes.push(this.end.data.getIndexByCoord())
     }
 
+    head.data.in()
     this.scene.add(head.data.mesh)
   }
 
@@ -92,22 +92,31 @@ export default class Snake extends EventDispatcher {
     )
     leftEye.scale.x = 0.1
     leftEye.position.x = 0.5
-    leftEye.position.y = 0.1
-    leftEye.position.z = 0.1
+    leftEye.position.y = 0.12
+    leftEye.position.z = -0.1
+
+    const leftEyeHole = new Mesh(
+      new SphereGeometry(0.22, 10, 10),
+      new MeshStandardMaterial({ color: 0x333333 })
+    )
+    leftEyeHole.scale.set(1, 0.6, 0.6)
+    leftEyeHole.position.x += 0.05
+    leftEye.add(leftEyeHole)
 
     const rightEye = leftEye.clone()
     rightEye.position.x = -0.5
+    rightEye.rotation.y = Math.PI
 
     const mouthMesh = new Mesh(
-      new RoundedBoxGeometry(1.1, 0.08, 0.5, 5, 0.08),
+      new RoundedBoxGeometry(1.05, 0.1, 0.6, 5, 0.1),
       new MeshStandardMaterial({
         color: this.mouthColor
       })
     )
 
-    mouthMesh.rotation.x = -Math.PI * 0.1
-    mouthMesh.position.z = 0.3
-    mouthMesh.position.y = -0.2
+    mouthMesh.rotation.x = -Math.PI * 0.07
+    mouthMesh.position.z = 0.23
+    mouthMesh.position.y = -0.19
 
     this.mouth = mouthMesh
 
@@ -117,26 +126,32 @@ export default class Snake extends EventDispatcher {
   }
 
   public setDirection(keyCode: string) {
+    let newDirection
+
     switch (keyCode) {
       case 'ArrowUp':
-        this.newDirection = UP
+      case 'KeyW':
+        newDirection = UP
         break
       case 'ArrowDown':
-        this.newDirection = DOWN
+      case 'KeyS':
+        newDirection = DOWN
         break
       case 'ArrowLeft':
-        this.newDirection = LEFT
+      case 'KeyA':
+        newDirection = LEFT
         break
       case 'ArrowRight':
-        this.newDirection = RIGHT
+      case 'KeyD':
+        newDirection = RIGHT
         break
+      default:
+        return
     }
 
-    if (this.newDirection) {
-      const dot = this.direction.dot(this.newDirection)
-      if (dot !== 0) {
-        this.newDirection = null
-      }
+    const dot = this.direction.dot(newDirection)
+    if (dot === 0) {
+      this.newDirection = newDirection
     }
   }
 
@@ -158,12 +173,12 @@ export default class Snake extends EventDispatcher {
       const candy = currentNode.prev.data.candy
       if (candy) {
         currentNode.data.candy = candy
-        currentNode.data.mesh.scale.setScalar(1.1)
+        currentNode.data.mesh.scale.setScalar(1.15)
         currentNode.prev.data.candy = null
         currentNode.prev.data.mesh.scale.setScalar(1)
       }
 
-      const position = currentNode.prev.data.mesh.position.clone()
+      const position = currentNode.prev.data.mesh.position
       currentNode.data.mesh.position.copy(position)
       currentNode = currentNode.prev
     }
@@ -210,7 +225,7 @@ export default class Snake extends EventDispatcher {
   }
 
   public checkEntitiesCollision(entities: Entity[]): boolean {
-    const headIndex = this.indexes[this.indexes.length - 1]
+    const headIndex = this.indexes.at(-1)
 
     const entity = entities.find(
       (entity) => entity.getIndexByCoord() === headIndex
@@ -240,6 +255,7 @@ export default class Snake extends EventDispatcher {
     }
 
     this.body.addNode(node)
+    node.data.in()
     this.scene.add(node.data.mesh)
   }
 }
