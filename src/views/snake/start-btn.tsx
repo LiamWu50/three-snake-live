@@ -73,6 +73,4 @@ const StartBtn: React.FC<StartBtnProps> = (props: StartBtnProps) => {
   )
 }
 
-StartBtn.displayName = 'StartBtn'
-
 export default StartBtn
